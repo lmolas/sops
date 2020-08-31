@@ -111,10 +111,13 @@ func (key *MasterKey) Decrypt() ([]byte, error) {
 
 	decrypted, err := kmsSvc.Decrypt(&kms.DecryptInput{CiphertextBlob: k, EncryptionContext: key.EncryptionContext})
 	if err != nil {
+		fmt.Printf("SOPS ERROR Decryption failed for key %v\n", err)
 		log.WithField("arn", key.Arn).Info("Decryption failed")
 		return nil, fmt.Errorf("Error decrypting key: %v", err)
 	}
 	log.WithField("arn", key.Arn).Info("Decryption succeeded")
+	fmt.Println("Decryption succeeded")
+	fmt.Printf("decrypted.Plaintext %v\n", decrypted.Plaintext)
 	return decrypted.Plaintext, nil
 }
 
