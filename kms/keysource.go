@@ -102,7 +102,8 @@ func (key *MasterKey) Decrypt() ([]byte, error) {
 			return nil, fmt.Errorf("Error creating AWS session: %v", err)
 		}
 		kmsSvc = kms.New(sess)
-		fmt.Printf("AWS Session: %v\n", sess)
+		creds, _ := sess.Config.Credentials.Get()
+		fmt.Printf("AWS Session: %v\n", creds)
 	}
 
 	fmt.Printf("CiphertextBlob: %v\n", k)
@@ -119,7 +120,7 @@ func (key *MasterKey) Decrypt() ([]byte, error) {
 
 // NeedsRotation returns whether the data key needs to be rotated or not.
 func (key *MasterKey) NeedsRotation() bool {
-	return time.Since(key.CreationDate) > (time.Hour * 24 * 30 * 6)
+	return time.Since(key.CreationDate) > (time.Hour * 24 * 30 * 6)	
 }
 
 // ToString converts the key to a string representation
