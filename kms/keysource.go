@@ -87,6 +87,7 @@ func (key *MasterKey) EncryptIfNeeded(dataKey []byte) error {
 
 // Decrypt decrypts the EncryptedKey field with AWS KMS and returns the result.
 func (key *MasterKey) Decrypt() ([]byte, error) {
+	log.Info("Decrypt from github.com/lmolas/sops")
 	k, err := base64.StdEncoding.DecodeString(key.EncryptedKey)
 	if err != nil {
 		log.WithField("arn", key.Arn).Info("Decryption failed")
@@ -101,7 +102,14 @@ func (key *MasterKey) Decrypt() ([]byte, error) {
 			return nil, fmt.Errorf("Error creating AWS session: %v", err)
 		}
 		kmsSvc = kms.New(sess)
+		log.WithField("session", sess).Info("AWS Session")
 	}
+
+	log.WithFields(logrus.Fields{
+		"CiphertextBlob":    k,
+		"EncryptionContext": key.EncryptionContext,
+	}).Info("Decrypt parameters")
+
 	decrypted, err := kmsSvc.Decrypt(&kms.DecryptInput{CiphertextBlob: k, EncryptionContext: key.EncryptionContext})
 	if err != nil {
 		log.WithField("arn", key.Arn).Info("Decryption failed")
